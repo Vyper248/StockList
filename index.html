@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+
+<title>Food Stock</title>
+
+<style>
+:root {
+  --bg: #f2f2f7;
+  --card: white;
+  --text: black;
+  --button: #007aff;
+  --secondary: #888;
+  --overlay: rgba(0,0,0,0.4);
+}
+
+body.dark {
+  --bg: #1c1c1e;
+  --card: #2c2c2e;
+  --text: #f2f2f7;
+  --button: #0a84ff;
+  --secondary: #555;
+  --overlay: rgba(0,0,0,0.6);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 10px;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+h1 {
+  margin: 5px 0 10px;
+}
+
+button {
+  border: none;
+  background: var(--button);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+button.secondary {
+  background: var(--secondary);
+}
+
+.icon-btn {
+  background: none;
+  color: var(--text);
+  font-size: 20px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  background: var(--card);
+  margin-bottom: 4px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.item-name {
+  flex: 1;
+}
+
+.counter-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.counter-btn {
+  background: #e5e5ea;
+  color: black;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  background: var(--card);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.modal {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal input, .modal select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+</style>
+</head>
+<body>
+
+<div class="top-row">
+  <h1>Food Stock</h1>
+  <div class="top-buttons">
+    <button class="icon-btn" onclick="openAddModal()">➕</button>
+    <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+  </div>
+</div>
+
+<div>
+  <button onclick="clearChecks()">Clear Checks</button>
+  <button class="secondary" onclick="toggleEditMode()">Edit</button>
+</div>
+<br/>
+
+<ul id="list"></ul>
+
+<!-- SETTINGS -->
+<div class="settings-panel" id="settingsPanel">
+  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  <button onclick="exportData()">Export JSON</button>
+  <button onclick="document.getElementById('importFile').click()">Import JSON</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Add Item</h3>
+    <input type="text" id="newItem" placeholder="Item name">
+    <select id="itemType">
+      <option value="qty">Qty Based</option>
+      <option value="text">Text Based</option>
+    </select>
+    <button onclick="addItem()">Add Item</button>
+    <button class="secondary" onclick="closeAddModal()">Close</button>
+  </div>
+</div>
+
+<script>
+let items = JSON.parse(localStorage.getItem("foodStockList")) || [];
+let editMode = false;
+let darkMode = localStorage.getItem("darkMode") === "true";
+if (darkMode) document.body.classList.add("dark");
+
+function save() {
+  localStorage.setItem("foodStockList", JSON.stringify(items));
+}
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  items.forEach((item, index) => {
+    const li = document.createElement("li");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = item.checked;
+    checkbox.onchange = () => {
+      item.checked = checkbox.checked;
+      save();
+    };
+    li.appendChild(checkbox);
+
+    if (item.type === "qty") {
+      const container = document.createElement("div");
+      container.className = "counter-container";
+
+      const minus = document.createElement("button");
+      minus.textContent = "−";
+      minus.className = "counter-btn";
+      minus.onclick = () => {
+        if (item.value > 0) item.value--;
+        save(); render();
+      };
+
+      const number = document.createElement("div");
+      number.textContent = item.value;
+
+      const plus = document.createElement("button");
+      plus.textContent = "+";
+      plus.className = "counter-btn";
+      plus.onclick = () => {
+        item.value++;
+        save(); render();
+      };
+
+      container.append(minus, number, plus);
+      li.appendChild(container);
+    } else {
+      const select = document.createElement("select");
+      ["None","Low","Half","Plenty"].forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt;
+        o.textContent = opt;
+        if (item.value === opt) o.selected = true;
+        select.appendChild(o);
+      });
+      select.onchange = () => {
+        item.value = select.value;
+        save();
+      };
+      li.appendChild(select);
+    }
+
+    const name = document.createElement("div");
+    name.className = "item-name";
+    name.textContent = item.name;
+    li.appendChild(name);
+
+    list.appendChild(li);
+  });
+}
+
+function openAddModal() {
+  document.getElementById("addModal").style.display = "flex";
+}
+
+function closeAddModal() {
+  document.getElementById("addModal").style.display = "none";
+}
+
+function addItem() {
+  const input = document.getElementById("newItem");
+  const type = document.getElementById("itemType").value;
+  if (!input.value.trim()) return;
+
+  items.push({
+    name: input.value.trim(),
+    checked: false,
+    type: type,
+    value: type === "qty" ? 1 : "None"
+  });
+
+  input.value = "";
+  save();
+  render();
+}
+
+function clearChecks() {
+  items.forEach(i => i.checked = false);
+  save(); render();
+}
+
+function toggleSettings() {
+  const panel = document.getElementById("settingsPanel");
+  panel.style.display = panel.style.display === "flex" ? "none" : "flex";
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  darkMode = document.body.classList.contains("dark");
+  localStorage.setItem("darkMode", darkMode);
+}
+
+function exportData() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const filename = `Food-Stock-Backup-${yyyy}-${mm}-${dd}.json`;
+
+  const blob = new Blob([JSON.stringify(items, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      items = JSON.parse(e.target.result);
+      save(); render();
+      alert("Import successful!");
+    } catch {
+      alert("Invalid JSON file.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+render();
+</script>
+
+</body>
+</html>
