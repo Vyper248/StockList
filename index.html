@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#ffffff">
@@ -12,335 +12,434 @@
 <title>Food Stock</title>
 
 <style>
-:root {
-  --bg: #f2f2f7;
-  --card: white;
-  --text: black;
-  --button: #007aff;
-  --secondary: #888;
-  --overlay: rgba(0,0,0,0.4);
+:root{
+--bg:#f2f2f7;
+--card:#ffffff;
+--sep:#e5e5ea;
+--text:#000;
+--secondary:#6d6d72;
+--accent:#007aff;
+--danger:#ff3b30;
+--control-bg:#e5e5ea;
 }
 
-body.dark {
-  --bg: #1c1c1e;
-  --card: #2c2c2e;
-  --text: #f2f2f7;
-  --button: #0a84ff;
-  --secondary: #555;
-  --overlay: rgba(0,0,0,0.6);
+body.dark{
+--bg:#000;
+--card:#1c1c1e;
+--sep:#2c2c2e;
+--text:#fff;
+--secondary:#8e8e93;
+--accent:#0a84ff;
+--danger:#ff453a;
+--control-bg:#2c2c2e;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  margin: 0;
-  padding: 10px;
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+background:var(--bg);
+color:var(--text);
 }
 
-.top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* NAV */
+.nav{
+position:sticky;
+top:0;
+padding:env(safe-area-inset-top) 16px 12px;
+backdrop-filter:blur(20px);
+background:rgba(255,255,255,.7);
+z-index:10;
+}
+body.dark .nav{background:rgba(0,0,0,.85);}
+
+.nav-top{
+display:flex;
+justify-content:space-between;
+align-items:flex-end;
 }
 
-.top-buttons {
-  display: flex;
-  gap: 10px;
+.large-title{
+font-size:34px;
+font-weight:700;
 }
 
-h1 {
-  margin: 5px 0 10px;
+.nav-buttons{
+display:flex;
+gap:18px;
+font-size:17px;
+cursor:pointer;
 }
 
-button {
-  border: none;
-  background: var(--button);
-  color: white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
+.clear-top{
+margin-top:6px;
+font-size:15px;
+color:var(--danger);
+cursor:pointer;
 }
 
-button.secondary {
-  background: var(--secondary);
+/* LIST */
+.list{
+margin:16px;
+border-radius:12px;
+overflow:hidden;
 }
 
-.icon-btn {
-  background: none;
-  color: var(--text);
-  font-size: 20px;
+.row{
+display:flex;
+align-items:center;
+padding:10px 12px;
+background:var(--card);
+border-bottom:1px solid var(--sep);
+gap:10px;
+font-size:15px;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.row:last-child{border-bottom:none;}
+.row.dragging{opacity:.4;}
+
+.item-name{
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
 }
 
-li {
-  display: flex;
-  align-items: center;
-  background: var(--card);
-  margin-bottom: 4px;
-  padding: 5px 6px;
-  border-radius: 6px;
-  font-size: 14px;
-  gap: 6px;
+.value-display{
+margin-left:6px;
+font-weight:500;
+color:var(--secondary);
 }
 
-.item-name {
-  flex: 1;
+.flex-spacer{
+flex:1;
 }
 
-.counter-container {
-  display: flex;
-  align-items: center;
-  gap: 3px;
+/* Controls */
+.control-btn{
+min-width:52px;
+height:28px;
+border-radius:8px;
+border:none;
+background:var(--control-bg);
+color:var(--text);
+font-size:16px;
+font-weight:600;
 }
 
-.counter-btn {
-  background: #e5e5ea;
-  color: black;
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 12px;
+.dropdown{
+height:28px;
+border-radius:8px;
+padding:0 8px;
+border:1px solid var(--sep);
+background:var(--control-bg);
+color:var(--text);
+font-size:14px;
 }
 
-.settings-panel {
-  position: fixed;
-  top: 50px;
-  right: 10px;
-  background: var(--card);
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 100;
+/* Edit */
+.drag-handle{
+cursor:grab;
+font-size:16px;
+color:var(--secondary);
 }
 
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 200;
+.delete-btn{
+color:var(--danger);
+font-size:13px;
+cursor:pointer;
 }
 
-.modal {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* SHEET */
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+display:none;
+justify-content:center;
+align-items:flex-end;
+z-index:100;
 }
 
-.modal input, .modal select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.sheet{
+width:100%;
+background:var(--card);
+border-radius:20px 20px 0 0;
+padding:20px;
+transform:translateY(100%);
+transition:.3s ease;
+}
+
+.sheet.show{transform:translateY(0);}
+
+.sheet button{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:none;
+margin-top:10px;
+font-size:16px;
+background:var(--accent);
+color:white;
+}
+
+.sheet button.secondary{
+background:var(--sep);
+color:var(--text);
 }
 </style>
 </head>
 <body>
 
-<div class="top-row">
-  <h1>Food Stock</h1>
-  <div class="top-buttons">
-    <button class="icon-btn" onclick="openAddModal()">➕</button>
-    <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+<div class="nav">
+  <div class="nav-top">
+    <div class="large-title">Food Stock</div>
+    <div class="nav-buttons">
+      <div id="editBtn">Edit</div>
+      <div id="addBtn">＋</div>
+      <div id="settingsBtn">⚙︎</div>
+    </div>
   </div>
+  <div class="clear-top" id="clearBtn">Clear All Checks</div>
 </div>
 
-<div>
-  <button onclick="clearChecks()">Clear Checks</button>
-  <button class="secondary" onclick="toggleEditMode()">Edit</button>
-</div>
-<br/>
+<div class="list" id="list"></div>
 
-<ul id="list"></ul>
-
-<!-- SETTINGS -->
-<div class="settings-panel" id="settingsPanel">
-  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-  <button onclick="exportData()">Export JSON</button>
-  <button onclick="document.getElementById('importFile').click()">Import JSON</button>
-  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-</div>
-
-<!-- ADD MODAL -->
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <h3>Add Item</h3>
-    <input type="text" id="newItem" placeholder="Item name">
-    <select id="itemType">
-      <option value="qty">Qty Based</option>
-      <option value="text">Text Based</option>
-    </select>
-    <button onclick="addItem()">Add Item</button>
-    <button class="secondary" onclick="closeAddModal()">Close</button>
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet">
+    <h3 id="sheetTitle"></h3>
+    <div id="sheetContent"></div>
   </div>
 </div>
 
 <script>
 let items = JSON.parse(localStorage.getItem("foodStockList")) || [];
+let darkMode = localStorage.getItem("darkMode")==="true";
 let editMode = false;
-let darkMode = localStorage.getItem("darkMode") === "true";
-if (darkMode) document.body.classList.add("dark");
+let deleteIndex = null;
 
-function save() {
-  localStorage.setItem("foodStockList", JSON.stringify(items));
+if(darkMode) document.body.classList.add("dark");
+
+function save(){
+localStorage.setItem("foodStockList", JSON.stringify(items));
 }
 
-function render() {
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+function render(){
+const list=document.getElementById("list");
+list.innerHTML="";
 
-  items.forEach((item, index) => {
-    const li = document.createElement("li");
+items.forEach((item,index)=>{
+const row=document.createElement("div");
+row.className="row";
+row.draggable=editMode;
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = item.checked;
-    checkbox.onchange = () => {
-      item.checked = checkbox.checked;
-      save();
-    };
-    li.appendChild(checkbox);
+/* Checkbox */
+const check=document.createElement("input");
+check.type="checkbox";
+check.checked=item.checked;
+check.onchange=()=>{
+item.checked=check.checked;
+save();
+};
+row.appendChild(check);
 
-    if (item.type === "qty") {
-      const container = document.createElement("div");
-      container.className = "counter-container";
+/* Name */
+const name=document.createElement("div");
+name.className="item-name";
+name.textContent=item.name;
+row.appendChild(name);
 
-      const minus = document.createElement("button");
-      minus.textContent = "−";
-      minus.className = "counter-btn";
-      minus.onclick = () => {
-        if (item.value > 0) item.value--;
-        save(); render();
-      };
+/* Value next to name */
+const value=document.createElement("div");
+value.className="value-display";
+value.textContent=item.value;
+row.appendChild(value);
 
-      const number = document.createElement("div");
-      number.textContent = item.value;
+/* Spacer */
+const spacer=document.createElement("div");
+spacer.className="flex-spacer";
+row.appendChild(spacer);
 
-      const plus = document.createElement("button");
-      plus.textContent = "+";
-      plus.className = "counter-btn";
-      plus.onclick = () => {
-        item.value++;
-        save(); render();
-      };
+/* Controls right */
+if(item.type==="qty"){
+const minus=document.createElement("button");
+minus.className="control-btn";
+minus.textContent="−";
+minus.onclick=()=>{ if(item.value>0) item.value--; save(); render(); };
+row.appendChild(minus);
 
-      container.append(minus, number, plus);
-      li.appendChild(container);
-    } else {
-      const select = document.createElement("select");
-      ["None","Low","Half","Plenty"].forEach(opt => {
-        const o = document.createElement("option");
-        o.value = opt;
-        o.textContent = opt;
-        if (item.value === opt) o.selected = true;
-        select.appendChild(o);
-      });
-      select.onchange = () => {
-        item.value = select.value;
-        save();
-      };
-      li.appendChild(select);
-    }
-
-    const name = document.createElement("div");
-    name.className = "item-name";
-    name.textContent = item.name;
-    li.appendChild(name);
-
-    list.appendChild(li);
-  });
+const plus=document.createElement("button");
+plus.className="control-btn";
+plus.textContent="+";
+plus.onclick=()=>{ item.value++; save(); render(); };
+row.appendChild(plus);
+}else{
+const sel=document.createElement("select");
+sel.className="dropdown";
+["None","Low","Half","Plenty"].forEach(v=>{
+const opt=document.createElement("option");
+opt.value=v;
+opt.textContent=v;
+if(item.value===v) opt.selected=true;
+sel.appendChild(opt);
+});
+sel.onchange=()=>{ item.value=sel.value; save(); render(); };
+row.appendChild(sel);
 }
 
-function openAddModal() {
-  document.getElementById("addModal").style.display = "flex";
+/* Edit mode */
+if(editMode){
+const drag=document.createElement("div");
+drag.textContent="☰";
+drag.className="drag-handle";
+row.appendChild(drag);
+
+const del=document.createElement("div");
+del.textContent="Delete";
+del.className="delete-btn";
+del.onclick=()=>confirmDelete(index);
+row.appendChild(del);
+
+row.addEventListener("dragstart",()=>row.classList.add("dragging"));
+row.addEventListener("dragend",()=>row.classList.remove("dragging"));
+row.addEventListener("dragover",(e)=>{
+e.preventDefault();
+const dragging=document.querySelector(".dragging");
+if(!dragging)return;
+const nodes=[...list.children];
+const from=nodes.indexOf(dragging);
+if(from!==index){
+const moved=items.splice(from,1)[0];
+items.splice(index,0,moved);
+save(); render();
+}
+});
 }
 
-function closeAddModal() {
-  document.getElementById("addModal").style.display = "none";
+list.appendChild(row);
+});
 }
 
-function addItem() {
-  const input = document.getElementById("newItem");
-  const type = document.getElementById("itemType").value;
-  if (!input.value.trim()) return;
-
-  items.push({
-    name: input.value.trim(),
-    checked: false,
-    type: type,
-    value: type === "qty" ? 1 : "None"
-  });
-
-  input.value = "";
-  save();
-  render();
+/* Edit toggle */
+function toggleEdit(){
+editMode=!editMode;
+document.getElementById("editBtn").textContent=editMode?"Done":"Edit";
+render();
 }
 
-function clearChecks() {
-  items.forEach(i => i.checked = false);
-  save(); render();
+/* Clear */
+function clearChecks(){
+items.forEach(i=>i.checked=false);
+save(); render();
 }
 
-function toggleSettings() {
-  const panel = document.getElementById("settingsPanel");
-  panel.style.display = panel.style.display === "flex" ? "none" : "flex";
+/* Sheet */
+const overlay=document.getElementById("overlay");
+const sheet=document.getElementById("sheet");
+
+overlay.addEventListener("click",e=>{
+if(e.target===overlay) closeSheet();
+});
+
+function openSheet(title,html){
+document.getElementById("sheetTitle").textContent=title;
+document.getElementById("sheetContent").innerHTML=html;
+overlay.style.display="flex";
+setTimeout(()=>sheet.classList.add("show"),10);
 }
 
-function toggleDarkMode() {
-  document.body.classList.toggle("dark");
-  darkMode = document.body.classList.contains("dark");
-  localStorage.setItem("darkMode", darkMode);
+function closeSheet(){
+sheet.classList.remove("show");
+setTimeout(()=>overlay.style.display="none",300);
 }
 
-function exportData() {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const filename = `Food-Stock-Backup-${yyyy}-${mm}-${dd}.json`;
-
-  const blob = new Blob([JSON.stringify(items, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+/* Add */
+function openAdd(){
+openSheet("Add Item",`
+<input id="newItem" placeholder="Item name" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--sep);margin-bottom:10px;">
+<select id="itemType" style="width:100%;padding:12px;border-radius:12px;margin-bottom:10px;">
+<option value="qty">Qty Based</option>
+<option value="text">Text Based</option>
+</select>
+<button onclick="addItem()">Add Item</button>
+<button class="secondary" onclick="closeSheet()">Close</button>
+`);
 }
 
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      items = JSON.parse(e.target.result);
-      save(); render();
-      alert("Import successful!");
-    } catch {
-      alert("Invalid JSON file.");
-    }
-  };
-  reader.readAsText(file);
+function addItem(){
+const name=document.getElementById("newItem").value.trim();
+const type=document.getElementById("itemType").value;
+if(!name)return;
+items.push({name,checked:false,type,value:type==="qty"?1:"None"});
+document.getElementById("newItem").value="";
+save(); render();
 }
+
+/* Delete */
+function confirmDelete(index){
+deleteIndex=index;
+openSheet("Delete Item",`
+<p>Delete "${items[index].name}"?</p>
+<button style="background:var(--danger);color:white" onclick="deleteItem()">Delete</button>
+<button class="secondary" onclick="closeSheet()">Cancel</button>
+`);
+}
+
+function deleteItem(){
+items.splice(deleteIndex,1);
+save(); render();
+closeSheet();
+}
+
+/* Settings */
+function openSettings(){
+openSheet("Settings",`
+<label style="display:flex;justify-content:space-between;margin-bottom:12px;">
+<span>Dark Mode</span>
+<input type="checkbox" ${darkMode?"checked":""} onchange="toggleDark(this)">
+</label>
+<button onclick="exportData()">Export JSON</button>
+<button onclick="document.getElementById('importFile').click()">Import JSON</button>
+<button class="secondary" onclick="closeSheet()">Close</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+`);
+}
+
+function toggleDark(el){
+darkMode=el.checked;
+document.body.classList.toggle("dark",darkMode);
+localStorage.setItem("darkMode",darkMode);
+}
+
+function exportData(){
+const d=new Date();
+const filename=`Food-Stock-Backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+const blob=new Blob([JSON.stringify(items,null,2)],{type:"application/json"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download=filename;
+a.click();
+URL.revokeObjectURL(url);
+}
+
+function importData(e){
+const file=e.target.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=(ev)=>{
+items=JSON.parse(ev.target.result);
+save(); render();
+closeSheet();
+};
+reader.readAsText(file);
+}
+
+/* Bind */
+document.getElementById("editBtn").onclick=toggleEdit;
+document.getElementById("addBtn").onclick=openAdd;
+document.getElementById("settingsBtn").onclick=openSettings;
+document.getElementById("clearBtn").onclick=clearChecks;
 
 render();
 </script>
-
 </body>
 </html>
