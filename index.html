@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Food Stock">
 
 <title>Food Stock</title>
@@ -49,6 +49,7 @@ padding:env(safe-area-inset-top) 16px 12px;
 backdrop-filter:blur(20px);
 background:rgba(255,255,255,.7);
 z-index:10;
+margin-top: 5px;
 }
 body.dark .nav{background:rgba(0,0,0,.85);}
 
@@ -79,7 +80,7 @@ cursor:pointer;
 
 /* LIST */
 .list{
-margin:16px;
+margin:4px;
 border-radius:12px;
 overflow:hidden;
 }
@@ -87,11 +88,11 @@ overflow:hidden;
 .row{
 display:flex;
 align-items:center;
-padding:10px 12px;
+padding:5px 5px;
 background:var(--card);
 border-bottom:1px solid var(--sep);
 gap:10px;
-font-size:15px;
+font-size:0.8em;
 }
 
 .row:last-child{border-bottom:none;}
@@ -107,6 +108,7 @@ text-overflow:ellipsis;
 margin-left:6px;
 font-weight:500;
 color:var(--secondary);
+font-size: 1em;
 }
 
 .flex-spacer{
